@@ -1,8 +1,22 @@
+"use client";
 import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar";
 import { drawerWidth } from "^/constants/theme";
+import { useQuery } from "react-query";
+import { getCarts, getCartsURL } from "./data/network/apis/cart";
+import CartTable from "./components/CartTable";
 
 export default function CartPage() {
+  const { data: rows = [], isLoading } = useQuery({
+    queryKey: [getCartsURL],
+    queryFn: getCarts,
+    select: (payload) => {
+      if (payload?.carts) {
+        return payload.carts;
+      }
+      return [];
+    },
+  });
   return (
     <Box
       component="main"
@@ -13,6 +27,7 @@ export default function CartPage() {
       }}
     >
       <Toolbar />
+      <CartTable rows={rows} isLoading={isLoading} />
     </Box>
   );
 }

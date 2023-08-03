@@ -1,5 +1,4 @@
-import { Data, Order } from "../data/types/commonProductType";
-import { IProduct } from "../data/types/productsApiType";
+import { Order } from "../app/(products)/data/types/commonProductType";
 
 export function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
   if (b[orderBy] < a[orderBy]) {

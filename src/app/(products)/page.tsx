@@ -10,7 +10,7 @@ import { useQuery } from "react-query";
 import BarChart from "./components/BarChart";
 
 export default function ProductPage() {
-  const [current, setCurrent] = React.useState(1);
+  const [current, setCurrent] = React.useState(0);
   const { data: rows = [], isLoading } = useQuery({
     queryKey: [getProductsURL],
     queryFn: getProducts,

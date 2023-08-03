@@ -7,44 +7,40 @@ import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TablePagination from "@mui/material/TablePagination";
 import TableRow from "@mui/material/TableRow";
-import { Data, Order } from "../data/types/commonProductType";
-import { filterString, getComparator } from "../../../utils/dataManipulator";
+import { useRouter } from "next/navigation";
+import { ICart } from "../data/types/cartTableType";
+import { Order } from "../data/types/commonCartType";
 import { CircularProgress } from "@mui/material";
-import { useSearchParams } from "next/navigation";
-import EnhancedTableToolbar from "./EnhancedTableToolbar";
 import EnhancedTableHead from "./EnhancedTableHead";
-import { IProduct } from "../data/types/productsApiType";
+import EnhancedTableToolbar from "./EnhancedTableToolbar";
+import { getComparator } from "^/utils/dataManipulator";
 import { stableSort } from "^/utils/stableSort";
 
-export default function ProductTable({
+export default function CartTable({
   rows,
   isLoading,
 }: {
-  rows: IProduct[];
+  rows: ICart[];
   isLoading: boolean;
 }) {
-  const searchParams = useSearchParams();
-
-  const product = searchParams.get("product");
-  const brand = searchParams.get("brand");
-  const price = searchParams.get("priceRange");
-  const stock = searchParams.get("stock");
-  const category = searchParams.get("category");
+  const router = useRouter();
   const [order, setOrder] = React.useState<Order>("asc");
-  const [orderBy, setOrderBy] = React.useState<keyof Data>("title");
+  const [orderBy, setOrderBy] = React.useState<keyof ICart>("id");
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
 
   const handleRequestSort = (
     event: React.MouseEvent<unknown>,
-    property: keyof Data
+    property: keyof ICart
   ) => {
     const isAsc = orderBy === property && order === "asc";
     setOrder(isAsc ? "desc" : "asc");
     setOrderBy(property);
   };
 
-  const handleClick = (event: React.MouseEvent<unknown>, name: string) => {};
+  const handleClick = (event: React.MouseEvent<unknown>, name: number) => {
+    router.push(`cart/${name}`);
+  };
 
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage);
@@ -56,47 +52,14 @@ export default function ProductTable({
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
+  const [search, setSearch] = React.useState("");
 
   // Avoid a layout jump when reaching the last page with empty rows.
   const emptyRows =
     page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
   const filteredRows = React.useMemo(
-    () =>
-      rows
-        .filter((row) => filterString(row.title, product || ""))
-        .filter((row) => {
-          if (!brand) {
-            return true;
-          } else {
-            return filterString(row.brand, brand);
-          }
-        })
-        .filter((row) => {
-          if (!category) {
-            return true;
-          } else {
-            return filterString(row.category, category);
-          }
-        })
-        .filter((row) => {
-          if (!stock) {
-            return true;
-          } else {
-            return Number(row.stock) === Number(stock);
-          }
-        })
-        .filter((row) => {
-          if (!price) {
-            return true;
-          } else {
-            const priceParam = price.split("-").map((p) => Number(p));
-            return (
-              Number(row.price) >= priceParam[0] &&
-              Number(row.price) <= priceParam[1]
-            );
-          }
-        }),
-    [brand, category, price, product, rows, stock]
+    () => rows.filter((row) => row.id.toString().startsWith(search)),
+    [rows, search]
   );
   const visibleRows = React.useMemo(
     () =>
@@ -110,7 +73,7 @@ export default function ProductTable({
   return (
     <Box className="w-screen sm:w-full overflow-auto">
       <Box className="w-full pl-4 pt-4 pr-1">
-        <EnhancedTableToolbar />
+        <EnhancedTableToolbar search={search} setSearch={setSearch} />
         {isLoading ? (
           <div className="w-full h-48 grid place-items-center">
             <CircularProgress />
@@ -134,7 +97,7 @@ export default function ProductTable({
                   return (
                     <TableRow
                       hover
-                      onClick={(event) => handleClick(event, row.title)}
+                      onClick={(event) => handleClick(event, row.id)}
                       role="checkbox"
                       tabIndex={-1}
                       key={row.id}
@@ -145,13 +108,14 @@ export default function ProductTable({
                         id={labelId}
                         scope="row"
                         padding="none"
+                        align="left"
                       >
-                        {row.title}
+                        {row.id}
                       </TableCell>
-                      <TableCell align="right">{row.brand}</TableCell>
-                      <TableCell align="right">{row.price}</TableCell>
-                      <TableCell align="right">{row.stock}</TableCell>
-                      <TableCell align="right">{row.category}</TableCell>
+                      <TableCell align="right">{row.total}</TableCell>
+                      <TableCell align="right">{row.discountedTotal}</TableCell>
+                      <TableCell align="right">{row.totalProducts}</TableCell>
+                      <TableCell align="right">{row.totalQuantity}</TableCell>
                     </TableRow>
                   );
                 })}
@@ -171,7 +135,7 @@ export default function ProductTable({
         <TablePagination
           component="div"
           rowsPerPageOptions={[5, 10, 25, 50, 100]}
-          count={filteredRows.length}
+          count={rows.length}
           rowsPerPage={rowsPerPage}
           page={page}
           onPageChange={handleChangePage}

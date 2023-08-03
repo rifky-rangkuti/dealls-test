@@ -7,20 +7,20 @@ import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TablePagination from "@mui/material/TablePagination";
 import TableRow from "@mui/material/TableRow";
-import { Data, Order } from "../data/types/commonProductType";
-import { filterString, getComparator } from "../../../utils/dataManipulator";
 import { CircularProgress } from "@mui/material";
 import { useSearchParams } from "next/navigation";
 import EnhancedTableToolbar from "./EnhancedTableToolbar";
 import EnhancedTableHead from "./EnhancedTableHead";
-import { IProduct } from "../data/types/productsApiType";
+import { Order } from "../../data/types/commonCartType";
+import { ICartProduct } from "../data/types/cartProductType";
+import { filterString, getComparator } from "^/utils/dataManipulator";
 import { stableSort } from "^/utils/stableSort";
 
-export default function ProductTable({
+export default function CartProductTable({
   rows,
   isLoading,
 }: {
-  rows: IProduct[];
+  rows: ICartProduct[];
   isLoading: boolean;
 }) {
   const searchParams = useSearchParams();
@@ -31,13 +31,13 @@ export default function ProductTable({
   const stock = searchParams.get("stock");
   const category = searchParams.get("category");
   const [order, setOrder] = React.useState<Order>("asc");
-  const [orderBy, setOrderBy] = React.useState<keyof Data>("title");
+  const [orderBy, setOrderBy] = React.useState<keyof ICartProduct>("title");
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
 
   const handleRequestSort = (
     event: React.MouseEvent<unknown>,
-    property: keyof Data
+    property: keyof ICartProduct
   ) => {
     const isAsc = orderBy === property && order === "asc";
     setOrder(isAsc ? "desc" : "asc");
@@ -61,42 +61,8 @@ export default function ProductTable({
   const emptyRows =
     page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
   const filteredRows = React.useMemo(
-    () =>
-      rows
-        .filter((row) => filterString(row.title, product || ""))
-        .filter((row) => {
-          if (!brand) {
-            return true;
-          } else {
-            return filterString(row.brand, brand);
-          }
-        })
-        .filter((row) => {
-          if (!category) {
-            return true;
-          } else {
-            return filterString(row.category, category);
-          }
-        })
-        .filter((row) => {
-          if (!stock) {
-            return true;
-          } else {
-            return Number(row.stock) === Number(stock);
-          }
-        })
-        .filter((row) => {
-          if (!price) {
-            return true;
-          } else {
-            const priceParam = price.split("-").map((p) => Number(p));
-            return (
-              Number(row.price) >= priceParam[0] &&
-              Number(row.price) <= priceParam[1]
-            );
-          }
-        }),
-    [brand, category, price, product, rows, stock]
+    () => rows.filter((row) => filterString(row.title, product || "")),
+    [product, rows]
   );
   const visibleRows = React.useMemo(
     () =>
@@ -148,10 +114,13 @@ export default function ProductTable({
                       >
                         {row.title}
                       </TableCell>
-                      <TableCell align="right">{row.brand}</TableCell>
                       <TableCell align="right">{row.price}</TableCell>
-                      <TableCell align="right">{row.stock}</TableCell>
-                      <TableCell align="right">{row.category}</TableCell>
+                      <TableCell align="right">{row.quantity}</TableCell>
+                      <TableCell align="right">{row.total}</TableCell>
+                      <TableCell align="right">
+                        {row.discountPercentage}
+                      </TableCell>
+                      <TableCell align="right">{row.discountedPrice}</TableCell>
                     </TableRow>
                   );
                 })}
