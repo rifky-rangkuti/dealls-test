@@ -9,26 +9,22 @@ import TablePagination from "@mui/material/TablePagination";
 import TableRow from "@mui/material/TableRow";
 import { Data, Order } from "../data/types/commonProductType";
 import { filterString, getComparator } from "../utils/dataManipulator";
-import { useQuery } from "react-query";
-import { getProducts, getProductsURL } from "../data/network/apis/products";
 import { CircularProgress } from "@mui/material";
 import { stableSort } from "../utils/stableSort";
 import { useSearchParams } from "next/navigation";
 import EnhancedTableToolbar from "./EnhancedTableToolbar";
 import EnhancedTableHead from "./EnhancedTableHead";
+import { IProduct } from "../data/types/productsApiType";
 
-export default function ProductTable() {
+export default function ProductTable({
+  rows,
+  isLoading,
+}: {
+  rows: IProduct[];
+  isLoading: boolean;
+}) {
   const searchParams = useSearchParams();
-  const { data: rows = [], isLoading } = useQuery({
-    queryKey: [getProductsURL],
-    queryFn: getProducts,
-    select: (payload) => {
-      if (payload?.products) {
-        return payload.products;
-      }
-      return [];
-    },
-  });
+
   const product = searchParams.get("product");
   const brand = searchParams.get("brand");
   const price = searchParams.get("priceRange");

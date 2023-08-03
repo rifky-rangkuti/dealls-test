@@ -1,8 +1,6 @@
 import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar";
-import Typography from "@mui/material/Typography";
 import { drawerWidth } from "^/constants/theme";
-import CartTable from "./components/CartTable";
 
 export default function CartPage() {
   return (
@@ -15,7 +13,6 @@ export default function CartPage() {
       }}
     >
       <Toolbar />
-      <CartTable />
     </Box>
   );
 }
