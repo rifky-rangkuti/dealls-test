@@ -20,9 +20,9 @@ export default function DrawerContent() {
   return (
     <div>
       <Toolbar>
-        {/* <Link href="/">
+        <Link href="/">
           <Image src={LogoIcon} alt="" />
-        </Link> */}
+        </Link>
       </Toolbar>
       <Divider />
       <List>
