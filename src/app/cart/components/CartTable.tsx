@@ -116,6 +116,7 @@ export default function CartTable({
                       <TableCell align="right">{row.discountedTotal}</TableCell>
                       <TableCell align="right">{row.totalProducts}</TableCell>
                       <TableCell align="right">{row.totalQuantity}</TableCell>
+                      <TableCell align="right">Detail</TableCell>
                     </TableRow>
                   );
                 })}

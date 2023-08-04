@@ -31,4 +31,10 @@ export const headCells: readonly HeadCell[] = [
     disablePadding: true,
     label: "Total Quantity",
   },
+  {
+    id: "id",
+    numeric: true,
+    disablePadding: true,
+    label: "Action",
+  },
 ];
